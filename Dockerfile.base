@@ -1,21 +1,14 @@
 FROM mcr.microsoft.com/dotnet/framework/wcf:4.8-windowsservercore-ltsc2019 as runtime
 
-# IIS adjustments
+# IIS adjustments to get the net.pipe binding work
 
+# HACK: Changing the shell to run appcmd as I am not able to get the PowerShell cmdlets add net.pipe binding. 
+# Tried New-Webbinding, running appcmd from PowerShell usng &$Env:windir\system32\inetsrv\appcmd set site .... /+bindings[....] . But all failed.
 SHELL ["cmd", "/S", "/C"]
 RUN c:\windows\system32\inetsrv\appcmd set site /site.name:"Default Web Site" /+bindings.[protocol='net.pipe',bindingInformation='*']
 
+#Changing shell back to PowerShell
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 RUN Install-WindowsFeature -name NET-WCF-Pipe-Activation45
 RUN &$Env:windir\system32\inetsrv\appcmd set app 'Default Web Site/' /enabledProtocols:"http,net.tcp,net.pipe"
-
-#RUN Import-Module ServerManager
-#RUN Add-WindowsFeature Web-Scripting-Tools
-#RUN import-module WebAdministration
-
-# RUN Set-ItemProperty "IIS:\Sites\Default` Web` Site" bindings -Value @(@{protocol='net.pipe'; bindingInformation='*'},@{protocol='net.tcp'; bindingInformation='808:*'},@{protocol='http'; bindingInformation='*:80:'})
-
-#RUN Set-ItemProperty "IIS:\sites\Default` Web` Site\internalservice" -name EnabledProtocols -Value "http,net.pipe"
-#&$Env:windir\system32\inetsrv\appcmd set app "Default Web Site/InternalService" /enabledProtocols:http,net.pipe
-RUN DIR

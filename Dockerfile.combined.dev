@@ -13,6 +13,17 @@ COPY ./InternalService ./InternalService
 RUN ConvertTo-WebApplication -PSPath "IIS:\Sites\Default` Web` Site\frontendwcfservice" -ApplicationPool "DefaultAppPool" -Force
 
 RUN ConvertTo-WebApplication -PSPath "IIS:\Sites\Default` Web` Site\internalservice"
-#RUN Set-ItemProperty "IIS:\sites\Default` Web` Site\internalservice" -name EnabledProtocols -Value "http,net.pipe"
 RUN &$Env:windir\system32\inetsrv\appcmd set app "Default` Web` Site/InternalService" /enabledProtocols:http,net.pipe
-RUN DIR
+
+# Strat - logging
+
+RUN & ICACLS "'C:\inetpub\logs' /grant 'IIS APPPOOL\DefaultAppPool:(OI)(CI)F' /T"
+
+RUN New-Item c:\LogMonitor -ItemType Directory
+RUN Invoke-WebRequest https://github.com/microsoft/windows-container-tools/releases/download/v1.1/LogMonitor.exe -OutFile C:\LogMonitor\LogMonitor.exe
+RUN Invoke-WebRequest https://raw.githubusercontent.com/microsoft/windows-container-tools/master/LogMonitor/src/LogMonitor/sample-config-files/IIS/LogMonitorConfig.json -OutFile C:\LogMonitor\LogMonitorConfig.json
+
+# Override the default entry point to monitor logs and emit into console.
+ENTRYPOINT ["C:\\LogMonitor\\LogMonitor.exe", "C:\\ServiceMonitor.exe", "w3svc"]
+
+# End - logging

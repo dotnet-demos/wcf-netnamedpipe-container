@@ -1,0 +1,18 @@
+# This is not compiling the application in the SDK container.
+# It is expecting the compilation is done outside of docker build.
+# Targeted for quick development.
+
+FROM joymon/wcfnetnamedpipe:4.8-windowsservercore-ltsc2019 as runtime
+WORKDIR /inetpub/wwwroot
+
+COPY ./FrontEndWCFService ./FrontEndWCFService
+COPY ./InternalService ./InternalService
+
+# IIS adjustments
+
+RUN ConvertTo-WebApplication -PSPath "IIS:\Sites\Default` Web` Site\frontendwcfservice" -ApplicationPool "DefaultAppPool" -Force
+
+RUN ConvertTo-WebApplication -PSPath "IIS:\Sites\Default` Web` Site\internalservice"
+#RUN Set-ItemProperty "IIS:\sites\Default` Web` Site\internalservice" -name EnabledProtocols -Value "http,net.pipe"
+RUN &$Env:windir\system32\inetsrv\appcmd set app "Default` Web` Site/InternalService" /enabledProtocols:http,net.pipe
+RUN DIR

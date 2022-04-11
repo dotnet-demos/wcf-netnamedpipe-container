@@ -1,4 +1,9 @@
-﻿docker run --name testwcf -p 82:80 -d wcf:latest
+﻿# Build container 
+## Dev
+docker build -t wcf -f Dockerfile.combined.dev .
+
+# Run container
+docker run --name testwcf -p 82:80 -d wcf:latest
 
 # TRoublehsoting
 

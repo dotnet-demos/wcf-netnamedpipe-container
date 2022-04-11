@@ -40,7 +40,12 @@ Here we just issue the Docker build command that will copy source to SDK contain
 - The Docker image is not layered to include internal service in base image and frontend WCF service in other container. It is advised to have a base container that has only internal service and give to other teams that develop front end services.
 - No side car pattern at container level - It uses service to host helping component.  
 
+## Hosting your own base container
 
+Currently the application image uses a base container (that enabled netNamedPipe in IIS) that is hosted under user [joymon](https://hub.docker.com/r/joymon/wcfnetnamedpipe). If you want to host the base image, please
+- Build the [Dockerfile.base](Dockerfile.base)
+- Push to your own docker hub repo or ACR
+- Change the Dockerfile.combined.* images to use your newly pushed image. 
 
 
 

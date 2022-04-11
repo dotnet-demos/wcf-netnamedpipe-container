@@ -28,10 +28,19 @@ Here we just issue the Docker build command that will copy source to SDK contain
 
 # Prerequisite
 
-- Docker environment with Windows containers. Better Docker Desktop.
+- Docker environment with Windows containers support. Better Docker Desktop.
 - Basic knowledge about containers.
 
 # Points to note
 
 - The base WCF container that is provided by MSFT is not enabled with netNamedPipeBinding. We need to enable ourselves.
 - While enabling the net.pipe binding, we need to set the IIS bindings at site level and protocols enablement at Web Application level.
+
+# Design notes
+- The Docker image is not layered to include internal service in base image and frontend WCF service in other container. It is advised to have a base container that has only internal service and give to other teams that develop front end services.
+- No side car pattern at container level - It uses service to host helping component.  
+
+
+
+
+
